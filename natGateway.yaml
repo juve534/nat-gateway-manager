@@ -1,0 +1,17 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Nat Gateway
+
+Parameters:
+  SubnetPublic:
+    Description: Subnet Public.
+    Type: String
+  EIP:
+    Description: Elastic IP ADDR
+    Type: String
+
+Resources:
+  NatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !Ref EIP
+      SubnetId: !Ref SubnetPublic
