@@ -1,0 +1,52 @@
+version: 2.1
+
+orbs:
+  aws-cli: circleci/aws-cli@2.0
+
+jobs:
+  create:
+    executor: aws-cli/default
+    working_directory: ~/work
+    steps:
+      - checkout
+      - aws-cli/setup:
+          profile-name: default
+      - run:
+          name: create AWS NAT Gateway
+          command: |
+             aws cloudformation deploy --template-file ./natGateway.yaml --stack-name firstNATGateway --no-fail-on-empty-changeset
+
+  destroy:
+    executor: aws-cli/default
+    working_directory: ~/work
+    steps:
+      - checkout
+      - aws-cli/setup:
+          profile-name: default
+      - run:
+          name: destroy AWS NAT Gateway
+          command: |
+             aws cloudformation delete-stack --stack-name firstNATGateway
+
+workflows:
+  version: 2
+  create-work:
+    triggers:
+      - schedule:
+          cron: "0 23 * * 0-4"
+          filters:
+            branches:
+              only: main
+    jobs:
+      - create:
+          context: aws
+  destroy-work:
+    triggers:
+      - schedule:
+          cron: "0 12 * * 1-5"
+          filters:
+            branches:
+              only: main
+    jobs:
+      - destroy:
+          context: aws
